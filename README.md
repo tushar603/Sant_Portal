@@ -1,4 +1,4 @@
-# Sant Portal 🙏
+# Sant Portal 
 
 A bilingual web portal dedicated to preserving and sharing the rich spiritual heritage of Maharashtra's saints. Browse detailed profiles of renowned Maharashtrian saints with information available in both **English** and **Marathi**.
 
@@ -6,19 +6,19 @@ A bilingual web portal dedicated to preserving and sharing the rich spiritual he
 
 ## Features
 
-- 🕉️ Profiles of 18 Maharashtra saints — Tukaram, Dnyaneshwar, Namdev, Eknath, Ramdas, Janabai, and more
-- 🌐 Full bilingual support — English and Marathi
-- 📖 Detailed saint profiles with:
+- Profiles of 18 Maharashtra saints — Tukaram, Dnyaneshwar, Namdev, Eknath, Ramdas, Janabai, and more
+- Full bilingual support — English and Marathi
+- Detailed saint profiles with:
   - History & biography
   - Literature & works
   - Mantras & stotras
   - Birth place with map
-- 📊 Interactive dashboard with region-wise grouping (Paschim Maharashtra, Marathwada, Vidarbha, Khandesh)
-- 🎵 Background devotional audio
-- 🔐 Admin panel with JWT-based authentication
-- ➕ Add, edit, and delete saint profiles from admin panel
-- 🖼️ Image upload support for saint photos
-- 🌙 Dark mode support
+- Interactive dashboard with region-wise grouping (Paschim Maharashtra, Marathwada, Vidarbha, Khandesh)
+- Background devotional audio
+- Admin panel with JWT-based authentication
+- Add, edit, and delete saint profiles from admin panel
+- Image upload support for saint photos
+- Dark mode support
 
 ---
 
