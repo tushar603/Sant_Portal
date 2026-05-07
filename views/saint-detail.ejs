@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title><%= saint.name %> — Sant Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn about <%= saint.name %> - <%= saint.birthPlace %>">
+    <link rel="stylesheet" href="/css/detail.css">
+    <script src="/css/js/darkmode.js"></script>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="topbar">
+    <div class="topbar-left">
+        <a href="/" class="topbar-btn">← Back</a>
+        <span class="topbar-brand">🪔 Sant Portal</span>
+    </div>
+    <div class="topbar-right">
+        <button class="topbar-btn dark-toggle" onclick="toggleDarkMode()">🌙 Dark</button>
+        <button class="topbar-btn" onclick="toggleLanguage()"><span id="langText">मराठी</span></button>
+        <button class="topbar-btn" onclick="toggleShareMenu()">🔗 Share</button>
+    </div>
+</div>
+
+<!-- Share Dropdown -->
+<div class="share-dropdown" id="shareMenu">
+    <a class="share-item" id="whatsappShare" target="_blank">💬 WhatsApp</a>
+    <a class="share-item" id="facebookShare" target="_blank">📘 Facebook</a>
+    <a class="share-item" id="twitterShare" target="_blank">🐦 Twitter</a>
+    <button class="share-item" onclick="copyLink()">📋 Copy Link</button>
+</div>
+<div class="copy-toast" id="copyToast">✅ Link Copied!</div>
+
+<!-- ── HERO ── -->
+<div class="saint-hero">
+    <div class="saint-hero-inner">
+        <img src="/images/<%= saint.image %>" class="detail-img" alt="<%= saint.name %>">
+        <div class="saint-hero-info">
+            <% if(saint.region) { %>
+            <div class="saint-region-badge">🗺 <%= saint.region %></div>
+            <% } %>
+            <h1 id="saintName"><%= saint.name %></h1>
+            <div class="saint-meta-grid">
+                <div class="saint-meta-item">
+                    <div class="meta-label" id="birthLabel">Birth Year</div>
+                    <div class="meta-value"><%= saint.birthYear || '—' %></div>
+                </div>
+                <div class="saint-meta-item">
+                    <div class="meta-label" id="placeLabel">Birth Place</div>
+                    <div class="meta-value" id="birthPlace"><%= saint.birthPlace || '—' %></div>
+                </div>
+                <div class="saint-meta-item" style="grid-column:1/-1">
+                    <div class="meta-label" id="godLabel">God Followed</div>
+                    <div class="meta-value" id="godFollowed"><%= saint.godFollowed || '—' %></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── CONTENT ── -->
+<div class="detail-container">
+
+    <div class="section">
+        <h2 class="section-title" id="historyTitle">History & Biography</h2>
+        <p id="historyText"><%= saint.history %></p>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title" id="literatureTitle">Literature & Works</h2>
+        <p id="literatureText"><%= saint.literature %></p>
+    </div>
+
+    <% if(saint.mantra) { %>
+    <div class="section mantra-section">
+        <h2 class="section-title" id="mantraTitle">Mantra / मंत्र</h2>
+        <div class="mantra-box" id="mantraText"><%= saint.mantra %></div>
+    </div>
+    <% } %>
+
+    <% if(saint.stotra) { %>
+    <div class="section stotra-section">
+        <h2 class="section-title" id="stotraTitle">Stotra / स्तोत्र</h2>
+        <pre class="stotra-box" id="stotraText"><%= saint.stotra %></pre>
+    </div>
+    <% } %>
+
+    <% if(saint.mapLocation) { %>
+    <div class="section">
+        <h2 class="section-title" id="mapTitle">Birth Place Location</h2>
+        <div class="map-container">
+            <iframe src="<%= saint.mapLocation %>" width="100%" height="420"
+                style="border:0;" allowfullscreen="" loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </div>
+    <% } %>
+
+</div>
+
+<!-- Audio FAB -->
+<% if(saint.audio) { %>
+<audio id="mantraAudio" loop>
+    <source src="/audio/<%= saint.audio %>" type="audio/mpeg">
+    <source src="/audio/<%= saint.audio %>" type="audio/mp4">
+    <source src="/audio/<%= saint.audio %>" type="audio/webm">
+</audio>
+<button class="audio-fab" onclick="toggleAudio()" id="audioBtn">
+    <span id="audioIcon">▶</span> <span id="audioText">Play Mantra</span>
+</button>
+<% } %>
+
+<script>
+    // Share
+    const pageUrl  = window.location.href;
+    const saintName = "<%= saint.name %>";
+    const shareText = `Learn about ${saintName} — Maharashtra Sant Portal`;
+    document.getElementById('whatsappShare').href  = `https://wa.me/?text=${encodeURIComponent(shareText+'\n'+pageUrl)}`;
+    document.getElementById('facebookShare').href  = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
+    document.getElementById('twitterShare').href   = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(pageUrl)}`;
+
+    function toggleShareMenu() { document.getElementById('shareMenu').classList.toggle('open'); }
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.topbar-btn') && !e.target.closest('.share-dropdown'))
+            document.getElementById('shareMenu').classList.remove('open');
+    });
+    function copyLink() {
+        navigator.clipboard.writeText(pageUrl).then(() => {
+            const t = document.getElementById('copyToast');
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2500);
+            document.getElementById('shareMenu').classList.remove('open');
+        });
+    }
+
+    // Audio
+    let isPlaying = false;
+    const audio = document.getElementById('mantraAudio');
+    function toggleAudio() {
+        if (isPlaying) {
+            audio.pause();
+            document.getElementById('audioIcon').textContent = '▶';
+            document.getElementById('audioText').textContent = 'Play Mantra';
+        } else {
+            audio.play();
+            document.getElementById('audioIcon').textContent = '⏸';
+            document.getElementById('audioText').textContent = 'Pause Mantra';
+        }
+        isPlaying = !isPlaying;
+    }
+
+    // Language
+    let isMarathi = false;
+    const saintData = {
+        name:              "<%= saint.name %>",
+        nameMarathi:       "<%= saint.nameMarathi || saint.name %>",
+        birthPlace:        "<%= saint.birthPlace %>",
+        birthPlaceMarathi: "<%= saint.birthPlaceMarathi || saint.birthPlace %>",
+        godFollowed:       "<%= saint.godFollowed %>",
+        godFollowedMarathi:"<%= saint.godFollowedMarathi || saint.godFollowed %>",
+        history:           <%- JSON.stringify(saint.history || '') %>,
+        historyMarathi:    <%- JSON.stringify(saint.historyMarathi || saint.history || '') %>,
+        literature:        <%- JSON.stringify(saint.literature || '') %>,
+        literatureMarathi: <%- JSON.stringify(saint.literatureMarathi || saint.literature || '') %>,
+        mantra:            <%- JSON.stringify(saint.mantra || '') %>,
+        stotra:            <%- JSON.stringify(saint.stotra || '') %>
+    };
+
+    function setText(id, val) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+    }
+
+    function toggleLanguage() {
+        isMarathi = !isMarathi;
+        const m = isMarathi;
+
+        // Button & labels
+        setText('langText',      m ? 'English'       : 'मराठी');
+        setText('birthLabel',    m ? 'जन्म वर्ष'     : 'Birth Year');
+        setText('placeLabel',    m ? 'जन्मस्थान'     : 'Birth Place');
+        setText('godLabel',      m ? 'उपासना देवता'  : 'God Followed');
+
+        // Hero values
+        setText('saintName',     m ? saintData.nameMarathi        : saintData.name);
+        setText('birthPlace',    m ? saintData.birthPlaceMarathi  : saintData.birthPlace);
+        setText('godFollowed',   m ? saintData.godFollowedMarathi : saintData.godFollowed);
+
+        // Section titles
+        setText('historyTitle',    m ? 'इतिहास आणि जीवनचरित्र' : 'History & Biography');
+        setText('literatureTitle', m ? 'साहित्य आणि कृती'       : 'Literature & Works');
+        setText('mantraTitle',     m ? 'मंत्र'                   : 'Mantra / मंत्र');
+        setText('stotraTitle',     m ? 'स्तोत्र'                 : 'Stotra / स्तोत्र');
+        setText('mapTitle',        m ? 'जन्मस्थान स्थान'         : 'Birth Place Location');
+
+        // Section content
+        setText('historyText',    m ? saintData.historyMarathi   : saintData.history);
+        setText('literatureText', m ? saintData.literatureMarathi: saintData.literature);
+        setText('mantraText',     saintData.mantra);
+        setText('stotraText',     saintData.stotra);
+    }
+</script>
+
+</body>
+</html>

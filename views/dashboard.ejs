@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - Sant Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="/css/js/darkmode.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f1ec; color: #333; transition: background 0.3s, color 0.3s; }
+        html.dark body { background: #0f0f0f; color: #f0ece4; }
+        html.dark .header { background: #1a0000; }
+        html.dark .map-section { background: #1a1a1a; box-shadow: none; }
+        html.dark .map-section h2 { color: #e8a0a0; border-color: #3a1a1a; }
+        html.dark .region-section { background: #1a1a1a; }
+        html.dark .saint-card { background: #222; border-color: #2e2e2e; color: #f0ece4; }
+        html.dark .saint-card-info h4 { color: #e8a0a0; }
+        html.dark .saint-card-info p { color: #999; }
+        html.dark .dark-toggle { background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.3); }
+        .dark-toggle { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em; transition: 0.2s; }
+        .dark-toggle:hover { background: rgba(255,255,255,0.35); }
+
+        .header {
+            background: #8b0000; color: white; padding: 20px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .header h1 { font-size: 1.8em; }
+        .header a {
+            color: white; text-decoration: none; background: rgba(255,255,255,0.2);
+            padding: 8px 18px; border-radius: 6px; font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .header a:hover { background: rgba(255,255,255,0.35); }
+
+        .map-section {
+            background: white; margin: 30px auto; max-width: 1100px;
+            border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); padding: 30px;
+        }
+        .map-section h2 {
+            color: #8b0000; font-size: 1.5em; margin-bottom: 20px;
+            border-bottom: 2px solid #8b0000; padding-bottom: 10px;
+        }
+
+        #maharashtra-map {
+            width: 100%;
+            height: 480px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            z-index: 1;
+        }
+
+        /* Custom saint marker */
+        .saint-marker-icon {
+            background: #8b0000;
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 14px !important;
+            height: 14px !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        }
+
+        /* Leaflet popup styling */
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .saint-popup { text-align: center; min-width: 140px; }
+        .saint-popup h4 { color: #8b0000; font-size: 0.95em; margin-bottom: 4px; }
+        .saint-popup p { font-size: 0.8em; color: #666; margin-bottom: 8px; }
+        .saint-popup a {
+            background: #8b0000; color: white; padding: 5px 12px;
+            border-radius: 5px; text-decoration: none; font-size: 0.8em;
+            display: inline-block;
+        }
+        .saint-popup a:hover { background: #a00000; }
+
+        .regions-container { max-width: 1100px; margin: 0 auto 40px; padding: 0 20px; }
+        .region-section {
+            background: white; border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 30px; overflow: hidden;
+        }
+        .region-header {
+            padding: 18px 25px; color: white;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .region-header h3 { font-size: 1.3em; }
+        .region-header .count {
+            background: rgba(255,255,255,0.25); padding: 4px 12px;
+            border-radius: 20px; font-size: 0.9em;
+        }
+        .rh-Paschim    { background: #e65100; }
+        .rh-Marathwada { background: #00695c; }
+        .rh-Vidarbha   { background: #1565c0; }
+        .rh-Khandesh   { background: #b71c1c; }
+        .rh-Konkan     { background: #6a1b9a; }
+
+        .saints-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px; padding: 20px;
+        }
+        .saint-card {
+            border: 1px solid #e8e0d0; border-radius: 10px; overflow: hidden;
+            text-align: center; transition: 0.2s; background: #fdfaf5;
+            text-decoration: none; color: inherit; display: block;
+        }
+        .saint-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+        .saint-card img { width: 100%; height: 140px; object-fit: cover; }
+        .saint-card-info { padding: 10px; }
+        .saint-card-info h4 { font-size: 0.9em; color: #8b0000; margin-bottom: 4px; }
+        .saint-card-info p { font-size: 0.78em; color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Maharashtra Saints Dashboard</h1>
+    <div style="display:flex;gap:10px;align-items:center;">
+        <button class="dark-toggle" onclick="toggleDarkMode()">🌙 Dark</button>
+        <a href="/">Home</a>
+    </div>
+</div>
+
+<div class="map-section">
+    <h2>Saints Across Maharashtra</h2>
+    <div id="maharashtra-map"></div>
+</div>
+
+<div class="regions-container">
+    <% const regionOrder = ["Paschim Maharashtra", "Marathwada", "Vidarbha", "Khandesh", "Konkan"]; %>
+    <% regionOrder.forEach(function(regionName) { %>
+        <% if (regions[regionName]) { %>
+        <div class="region-section">
+            <div class="region-header rh-<%= regionName.split(' ')[0] %>">
+                <h3><%= regionName %></h3>
+                <span class="count"><%= regions[regionName].length %> Saints</span>
+            </div>
+            <div class="saints-grid">
+                <% regions[regionName].forEach(function(saint) { %>
+                <a href="/saint/<%= saint._id %>" class="saint-card">
+                    <img src="/images/<%= saint.image %>" alt="<%= saint.name %>" onerror="this.style.display='none'">
+                    <div class="saint-card-info">
+                        <h4><%= saint.name %></h4>
+                        <p><%= saint.birthPlace %></p>
+                    </div>
+                </a>
+                <% }) %>
+            </div>
+        </div>
+        <% } %>
+    <% }) %>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Saint data with real lat/lng coordinates
+    const saints = [
+        { name: "Sant Tukaram Maharaj",        place: "Dehu, Pune",            lat: 18.716, lng: 73.769, id: "<% saints.forEach(s => { if(s.name==='Sant Tukaram Maharaj') { %><%= s._id %><% }}) %>" },
+        { name: "Sant Dnyaneshwar Maharaj",     place: "Alandi, Pune",          lat: 18.674, lng: 73.897, id: "<% saints.forEach(s => { if(s.name==='Sant Dnyaneshwar Maharaj') { %><%= s._id %><% }}) %>" },
+        { name: "Sant Muktabai",                place: "Apegaon, Aurangabad",   lat: 19.920, lng: 75.340, id: "<% saints.forEach(s => { if(s.name==='Sant Muktabai') { %><%= s._id %><% }}) %>" },
+        { name: "Sant Savata Mali",             place: "Akluj, Solapur",        lat: 17.888, lng: 75.017, id: "<% saints.forEach(s => { if(s.name==='Sant Savata Mali') { %><%= s._id %><% }}) %>" },
+        { name: "Sant Gora Kumbhar",            place: "Terdal, Solapur",       lat: 16.500, lng: 75.050, id: "<% saints.forEach(s => { if(s.name==='Sant Gora Kumbhar') { %><%= s._id %><% }}) %>" },
+        { name: "Gondavalekar Maharaj",         place: "Gondavale, Satara",     lat: 17.680, lng: 74.180, id: "<% saints.forEach(s => { if(s.name==='Gondavalekar Maharaj') { %><%= s._id %><% }}) %>" },
+        { name: "Swami Samarth of Akkalkot",    place: "Akkalkot, Solapur",     lat: 17.520, lng: 76.200, id: "<% saints.forEach(s => { if(s.name==='Swami Samarth of Akkalkot') { %><%= s._id %><% }}) %>" },
+        { name: "Sant Bhagwan Baba",            place: "Dhule",                 lat: 20.901, lng: 74.777, id: "<% saints.forEach(s => { if(s.name==='Sant Bhagwan Baba') { %><%= s._id %><% }}) %>" },
+        { name: "Sai Baba of Shirdi",           place: "Shirdi, Ahmednagar",    lat: 19.765, lng: 74.477, id: "<% saints.forEach(s => { if(s.name==='Sai Baba of Shirdi') { %><%= s._id %><% }}) %>" },
+        { name: "Sant Eknath Maharaj",          place: "Paithan, Aurangabad",   lat: 19.476, lng: 75.387, id: "<% saints.forEach(s => { if(s.name==='Sant Eknath Maharaj') { %><%= s._id %><% }}) %>" },
+        { name: "Sant Ramdas Swami",            place: "Jamb, Jalna",           lat: 19.834, lng: 75.888, id: "<% saints.forEach(s => { if(s.name==='Sant Ramdas Swami') { %><%= s._id %><% }}) %>" },
+        { name: "Sant Namdev Maharaj",          place: "Hingoli",               lat: 19.718, lng: 77.150, id: "<% saints.forEach(s => { if(s.name==='Sant Namdev Maharaj') { %><%= s._id %><% }}) %>" },
+        { name: "Sant Janabai",                 place: "Gangakhed, Parbhani",   lat: 18.962, lng: 76.750, id: "<% saints.forEach(s => { if(s.name==='Sant Janabai') { %><%= s._id %><% }}) %>" },
+        { name: "Sant Sena Nhavi",              place: "Pathri, Parbhani",      lat: 19.260, lng: 76.450, id: "<% saints.forEach(s => { if(s.name==='Sant Sena Nhavi') { %><%= s._id %><% }}) %>" },
+        { name: "Sant Chokhamela",              place: "Mehuna, Buldhana",      lat: 20.530, lng: 76.180, id: "<% saints.forEach(s => { if(s.name==='Sant Chokhamela') { %><%= s._id %><% }}) %>" },
+        { name: "Gajanan Maharaj of Shegaon",   place: "Shegaon, Buldhana",     lat: 20.794, lng: 76.694, id: "<% saints.forEach(s => { if(s.name==='Gajanan Maharaj of Shegaon') { %><%= s._id %><% }}) %>" },
+        { name: "Tajuddin Baba of Nagpur",      place: "Nagpur",                lat: 21.145, lng: 79.088, id: "<% saints.forEach(s => { if(s.name==='Tajuddin Baba of Nagpur') { %><%= s._id %><% }}) %>" },
+        { name: "Sant Rohidas",                 place: "Nagpur, Vidarbha",      lat: 21.000, lng: 79.500, id: "<% saints.forEach(s => { if(s.name==='Sant Rohidas') { %><%= s._id %><% }}) %>" },
+    ];
+
+    // Build saint ID map from server
+    const saintIdMap = {
+        <%- saints.map((s, i) => `"${(s.name||'').replace(/"/g,'')}": "/saint/${s._id}"`).join(',\n        ') %>
+    };
+
+    // Init Leaflet map centered on Maharashtra
+    const map = L.map('maharashtra-map', {
+        center: [19.7515, 75.7139],
+        zoom: 7,
+        minZoom: 6,
+        maxZoom: 12
+    });
+
+    // OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    // Custom red dot icon
+    const saintIcon = L.divIcon({
+        className: 'saint-marker-icon',
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+        popupAnchor: [0, -10]
+    });
+
+    // Add markers for each saint
+    saints.forEach(saint => {
+        const url = saintIdMap[saint.name] || '#';
+        const marker = L.marker([saint.lat, saint.lng], { icon: saintIcon }).addTo(map);
+        marker.bindPopup(`
+            <div class="saint-popup">
+                <h4>${saint.name}</h4>
+                <p>${saint.place}</p>
+                <a href="${url}">View Details</a>
+            </div>
+        `);
+    });
+
+    // Restrict map to Maharashtra bounds
+    const maharashtraBounds = L.latLngBounds(
+        L.latLng(15.6, 72.6),
+        L.latLng(22.1, 80.9)
+    );
+    map.setMaxBounds(maharashtraBounds);
+</script>
+
+</body>
+</html>

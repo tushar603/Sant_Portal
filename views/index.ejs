@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Sant Portal — Saints of Maharashtra</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore the spiritual heritage of Maharashtra through its great saints">
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="/css/js/darkmode.js"></script>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+    <a href="/" class="nav-brand">
+        <div class="nav-logo-wrap">🪔</div>
+        <div>
+            <span class="nav-title">Sant Portal</span>
+            <span class="nav-subtitle">MAHARASHTRA</span>
+        </div>
+    </a>
+
+    <div class="nav-divider"></div>
+
+    <div class="nav-center">
+        <a href="/" class="nav-link active">🏠 Home</a>
+        <a href="/dashboard" class="nav-link">🗺 Map & Dashboard</a>
+    </div>
+
+    <div class="nav-right">
+        <button class="nav-btn-ghost dark-toggle" onclick="toggleDarkMode()">🌙 Dark</button>
+        <button class="nav-btn-ghost" onclick="toggleLanguage()"><span id="langText">मराठी</span></button>
+        <div class="nav-divider"></div>
+        <a href="/login" class="nav-btn-primary">⚙ Admin Panel</a>
+    </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-eyebrow">🪔 Maharashtra's Spiritual Heritage</div>
+        <h1 id="title">Saints of <em>Maharashtra</em></h1>
+        <p class="hero-desc" id="subtitle">Discover the lives, teachings, and timeless legacy of Maharashtra's greatest saints — the torchbearers of Bhakti tradition</p>
+        <div class="hero-actions">
+            <button class="hero-btn-primary" onclick="document.querySelector('.toolbar').scrollIntoView({behavior:'smooth'})">
+                🔍 Explore Saints
+            </button>
+            <button class="hero-btn-ghost" onclick="toggleAudio()" id="audioBtn">
+                <span id="audioIcon">▶</span> <span id="audioText">Play Devotional Music</span>
+            </button>
+        </div>
+    </div>
+</section>
+
+<audio id="bgAudio" loop>
+    <source src="/audio/background-music.mp3" type="audio/mpeg">
+    <source src="/audio/background-music.mp3.weba" type="audio/webm">
+</audio>
+
+<!-- ── STATS BAR ── -->
+<div class="stats-bar">
+    <div class="stats-inner">
+        <div class="stat-item">
+            <div class="stat-num" id="totalCount"><%= saints.length %></div>
+            <div class="stat-label">Total Saints</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">5</div>
+            <div class="stat-label">Regions Covered</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">800+</div>
+            <div class="stat-label">Years of Heritage</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">∞</div>
+            <div class="stat-label">Spiritual Legacy</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── TOOLBAR ── -->
+<div class="toolbar">
+    <div class="toolbar-inner">
+        <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search saints by name..." oninput="filterSaints()">
+        </div>
+
+        <select id="regionFilter" class="toolbar-select" onchange="filterSaints()">
+            <option value="">All Regions</option>
+            <option value="Paschim Maharashtra">Paschim Maharashtra</option>
+            <option value="Marathwada">Marathwada</option>
+            <option value="Vidarbha">Vidarbha</option>
+            <option value="Khandesh">Khandesh</option>
+            <option value="Konkan">Konkan</option>
+        </select>
+
+        <select id="sortSelect" class="toolbar-select" onchange="filterSaints()">
+            <option value="default">Sort: Default</option>
+            <option value="name-asc">Name A → Z</option>
+            <option value="name-desc">Name Z → A</option>
+            <option value="year-asc">Oldest First</option>
+            <option value="year-desc">Newest First</option>
+        </select>
+
+        <div class="toolbar-right">
+            <div class="count-pill"><span id="countText"><%= saints.length %></span> Saints</div>
+            <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')" title="Grid View">⊞</button>
+            <button class="view-btn" id="listViewBtn" onclick="setView('list')" title="List View">☰</button>
+            <button class="clear-btn" onclick="clearFilters()">✕ Clear</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── SAINTS GRID ── -->
+<main class="main-content">
+    <div id="noResults" class="no-results" style="display:none;">
+        <div class="no-results-icon">🔍</div>
+        <h3>No saints found</h3>
+        <p>Try a different name or region filter</p>
+    </div>
+
+    <div class="container" id="saintsGrid">
+        <% saints.forEach(function(saint){ %>
+        <a href="/saint/<%= saint._id %>" class="card"
+           data-name="<%= (saint.name || '').toLowerCase() %>"
+           data-region="<%= saint.region || '' %>"
+           data-year="<%= saint.birthYear || '9999' %>">
+            <div class="card-img-wrap">
+                <img src="/images/<%= saint.image %>" class="saint-img" alt="<%= saint.name %>" loading="lazy" onerror="this.style.opacity='0.3'">
+                <div class="card-overlay">
+                    <span class="card-read-more">View Details →</span>
+                </div>
+            </div>
+            <div class="card-content">
+                <h2 class="card-name"><%= saint.name %></h2>
+                <div class="card-meta-row">
+                    <span class="meta-item">📅 <%= saint.birthYear || 'Unknown' %></span>
+                    <span class="meta-item">📍 <%= saint.birthPlace || 'Unknown' %></span>
+                </div>
+                <% if(saint.region) { %>
+                <span class="card-region-tag"><%= saint.region %></span>
+                <% } %>
+            </div>
+        </a>
+        <% }) %>
+    </div>
+</main>
+
+<!-- ── FOOTER ── -->
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-top">
+            <div class="footer-brand-col">
+                <div class="footer-logo">
+                    <div class="nav-logo-wrap">🪔</div>
+                    <span class="footer-brand-name">Sant Portal</span>
+                </div>
+                <p>A digital tribute to the saints of Maharashtra — preserving their wisdom, teachings, and spiritual legacy for generations to come.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Explore</h4>
+                <ul class="footer-links">
+                    <li><a href="/">All Saints</a></li>
+                    <li><a href="/dashboard">Map & Dashboard</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Regions</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Paschim Maharashtra</a></li>
+                    <li><a href="#">Marathwada</a></li>
+                    <li><a href="#">Vidarbha</a></li>
+                    <li><a href="#">Khandesh</a></li>
+                    <li><a href="#">Konkan</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Admin</h4>
+                <ul class="footer-links">
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="/admin">Admin Panel</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span class="footer-copy">Sant Portal · Maharashtra Saints Heritage Project</span>
+            <span class="footer-tagline" id="footer">जय महाराष्ट्र — Jai Maharashtra</span>
+        </div>
+    </div>
+</footer>
+
+<script>
+    let isMarathi = false, isPlaying = false;
+    const audio = document.getElementById('bgAudio');
+
+    function filterSaints() {
+        const query  = document.getElementById('searchInput').value.toLowerCase().trim();
+        const region = document.getElementById('regionFilter').value;
+        const sort   = document.getElementById('sortSelect').value;
+        const grid   = document.getElementById('saintsGrid');
+        const cards  = Array.from(grid.querySelectorAll('.card'));
+        let visible  = [];
+
+        cards.forEach(card => {
+            const match = card.dataset.name.includes(query) && (!region || card.dataset.region === region);
+            card.style.display = match ? '' : 'none';
+            if (match) visible.push(card);
+        });
+
+        visible.sort((a, b) => {
+            if (sort === 'name-asc')  return a.dataset.name.localeCompare(b.dataset.name);
+            if (sort === 'name-desc') return b.dataset.name.localeCompare(a.dataset.name);
+            if (sort === 'year-asc')  return parseInt(a.dataset.year) - parseInt(b.dataset.year);
+            if (sort === 'year-desc') return parseInt(b.dataset.year) - parseInt(a.dataset.year);
+            return 0;
+        });
+        visible.forEach(c => grid.appendChild(c));
+
+        document.getElementById('noResults').style.display = visible.length === 0 ? 'block' : 'none';
+        document.getElementById('countText').textContent = visible.length;
+    }
+
+    function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('regionFilter').value = '';
+        document.getElementById('sortSelect').value = 'default';
+        filterSaints();
+    }
+
+    function setView(type) {
+        const grid = document.getElementById('saintsGrid');
+        if (type === 'list') {
+            grid.classList.add('list-view');
+            document.getElementById('listViewBtn').classList.add('active');
+            document.getElementById('gridViewBtn').classList.remove('active');
+        } else {
+            grid.classList.remove('list-view');
+            document.getElementById('gridViewBtn').classList.add('active');
+            document.getElementById('listViewBtn').classList.remove('active');
+        }
+    }
+
+    function toggleAudio() {
+        if (isPlaying) {
+            audio.pause();
+            document.getElementById('audioIcon').textContent = '▶';
+            document.getElementById('audioText').textContent = isMarathi ? 'संगीत चालू करा' : 'Play Devotional Music';
+        } else {
+            audio.play().catch(() => {});
+            document.getElementById('audioIcon').textContent = '⏸';
+            document.getElementById('audioText').textContent = isMarathi ? 'संगीत बंद करा' : 'Pause Music';
+        }
+        isPlaying = !isPlaying;
+    }
+
+    function toggleLanguage() {
+        isMarathi = !isMarathi;
+        if (isMarathi) {
+            document.getElementById('langText').textContent = 'English';
+            document.getElementById('title').innerHTML = 'महाराष्ट्राचे <em>संत</em>';
+            document.getElementById('subtitle').textContent = 'महाराष्ट्राच्या महान संतांचे जीवन, शिकवण आणि वारसा जाणून घ्या';
+            document.getElementById('footer').textContent = 'जय महाराष्ट्र';
+            document.getElementById('searchInput').placeholder = 'संत शोधा...';
+        } else {
+            document.getElementById('langText').textContent = 'मराठी';
+            document.getElementById('title').innerHTML = 'Saints of <em>Maharashtra</em>';
+            document.getElementById('subtitle').textContent = "Discover the lives, teachings, and timeless legacy of Maharashtra's greatest saints";
+            document.getElementById('footer').textContent = 'जय महाराष्ट्र — Jai Maharashtra';
+            document.getElementById('searchInput').placeholder = 'Search saints by name...';
+        }
+    }
+</script>
+
+</body>
+</html>

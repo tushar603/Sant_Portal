@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Saint Placeholder Images</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f0f0f0; }
+        .placeholder { 
+            width: 300px; 
+            height: 400px; 
+            margin: 20px; 
+            display: inline-block;
+            text-align: center;
+            padding-top: 150px;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+            border-radius: 10px;
+        }
+        button { padding: 15px 30px; font-size: 18px; margin: 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Saint Placeholder Images Generator</h1>
+    <p>Right-click on each image and "Save image as..." with the exact filename shown below it.</p>
+    
+    <div id="placeholders"></div>
+
+    <script>
+        const saints = [
+            { name: "Sant Tukaram", file: "tukaram.jpg", color: "#8b4513" },
+            { name: "Sant Dnyaneshwar", file: "dnyaneshwar.jpg", color: "#2c5f2d" },
+            { name: "Sant Eknath", file: "eknath.jpg", color: "#8b0000" },
+            { name: "Sant Namdev", file: "namdev.jpg", color: "#4a5d23" },
+            { name: "Sant Ramdas", file: "ramdas.jpg", color: "#b8860b" },
+            { name: "Sant Janabai", file: "janabai.jpg", color: "#8b008b" },
+            { name: "Sant Chokhamela", file: "chokhamela.jpg", color: "#2f4f4f" },
+            { name: "Sant Gora Kumbhar", file: "gorakumbhar.jpg", color: "#cd853f" }
+        ];
+
+        const container = document.getElementById('placeholders');
+        
+        saints.forEach(saint => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 300;
+            canvas.height = 400;
+            const ctx = canvas.getContext('2d');
+            
+            // Background
+            ctx.fillStyle = saint.color;
+            ctx.fillRect(0, 0, 300, 400);
+            
+            // Text
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            
+            // Split name into lines
+            const words = saint.name.split(' ');
+            words.forEach((word, i) => {
+                ctx.fillText(word, 150, 180 + (i * 35));
+            });
+            
+            // Add to page
+            const div = document.createElement('div');
+            div.style.display = 'inline-block';
+            div.style.margin = '20px';
+            div.style.textAlign = 'center';
+            
+            const img = document.createElement('img');
+            img.src = canvas.toDataURL();
+            img.style.border = '3px solid #333';
+            img.style.borderRadius = '10px';
+            
+            const label = document.createElement('p');
+            label.innerHTML = `<strong>Save as: ${saint.file}</strong>`;
+            
+            div.appendChild(img);
+            div.appendChild(label);
+            container.appendChild(div);
+        });
+    </script>
+</body>
+</html>
